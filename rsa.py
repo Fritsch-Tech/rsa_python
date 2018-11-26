@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import sys
-import random
+import random, math
 from Crypto.Util import number
-key_length = 50
-e_stored = 450364575923581272008315327707
-n_stored = 533739451994951398578128257201
-d_stored = 68829681578788613803668547507
+key_length = 5
+e_stored = 3
+n_stored = 901
+d_stored = 555
 
 def egcd(a, b):
     if a == 0:
@@ -15,14 +15,12 @@ def egcd(a, b):
         g, y, x = egcd(b % a, a)
         return g, x - (b // a) * y, y
 
-
 def modinv(a, m):
     g, x, y = egcd(a, m)
     if g != 1:
         raise Exception('modular inverse does not exist')
     else:
         return x % m
-
 
 def print_optiones():
     print('Operationes:')
@@ -73,12 +71,34 @@ def encrypt():
         n = input('Enter Private Key n')
 
     msg = input('Enter message\n')
-    encrypted_msg = []
-    for char in msg:
-        encrypted_msg.append(pow(ord(char),e,n))
-    print(encrypted_msg)
-    for b in encrypted_msg:
-        print(chr(pow(b,d_stored,n_stored)))
+    #print([elem.encode("hex") for elem in msg])
+
+    # prepare msg for encryption
+
+    # convert msg to 8-Bit ascii Bytes
+    msg = ''.join([format(x, '08b') for x in msg.encode('ascii')])
+
+    # join 8-Bit to 10-Bit and padd with zeros at the end
+    msgBit10Int = []
+    for i in range(math.ceil(len(msg)/10)):
+        msgBit10Int.append(int(msg[:10].ljust(10,'0'),2))
+        msg = msg[10:]
+
+    # encrypt msg
+    encrypted_msg = ''.join([format(pow(x,e,n), '010b') for x in msgBit10Int])
+
+
+    msgBit8Int = []
+    for i in range(math.floor(len(encrypted_msg)/8)):
+        msgBit8Int.append(int(encrypted_msg[:8],2))
+        encrypted_msg = encrypted_msg[8:]
+
+    encrypted_msg  = msgBit8Int
+    print('Encrypted Message:')
+    for number in encrypted_msg:
+        print(number,end=' ')
+    print('')
+
 def decrypt():
     d = d_stored
     n = n_stored
@@ -91,7 +111,32 @@ def decrypt():
         n = input('Enter Public Key n')
 
     msg = input('Enter message\n')
-    print(chr(pow(int(msg),d,n)))
+    # convert msg to list
+    msg = [int(x) for x in msg.split(' ') if x != '']
+
+    # convert numbers in list to bit and add to string
+    msg = ''.join([format(x, '08b') for x in msg])
+
+
+    msgBit10Int = []
+    for i in range(math.ceil(len(msg)/10)):
+        msgBit10Int.append(int(msg[:10].ljust(10,'0'),2))
+        msg = msg[10:]
+    print(msgBit10Int)
+
+    decrypted_msg = ''.join([format(pow(x,d,n), '010b') for x in msgBit10Int])
+
+    msgBit8Int = []
+    for i in range(math.floor(len(decrypted_msg)/8)):
+        msgBit8Int.append(chr(int(decrypted_msg[:8],2)))
+        decrypted_msg = decrypted_msg[8:]
+
+
+    decrypted_msg  = ''.join(x for x in msgBit8Int)
+
+    print('Decrypted Message')
+    print(decrypted_msg)
+    return
 
 def operation_not_found():
     print('unknown operation')
