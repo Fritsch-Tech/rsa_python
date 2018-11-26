@@ -61,7 +61,7 @@ def generate_keys():
 
 def crypt(msg,a,b):
     # convert numbers in list to bit and add to string
-    msg = ''.join([format(x, '08b') for x in msg])
+    msg = ''.join([format(ord(x), '08b') for x in msg])
 
     msgBit10Int = []
     for i in range(math.ceil(len(msg)/10)):
@@ -70,10 +70,10 @@ def crypt(msg,a,b):
     crypted_msg = ''.join([format(pow(x,a,b), '010b') for x in msgBit10Int])
     msgBit8Int = []
     for i in range(math.floor(len(crypted_msg)/8)):
-        msgBit8Int.append(int(crypted_msg[:8],2))
+        msgBit8Int.append(chr(int(crypted_msg[:8],2)))
         crypted_msg = crypted_msg[8:]
-    print(msgBit8Int)
-    return msgBit8Int
+    crypted_msg = ''.join([str(x) for x in msgBit8Int])
+    return crypted_msg
 
 def encrypt():
     e = e_stored
@@ -87,18 +87,10 @@ def encrypt():
         n = input('Enter Private Key n')
 
     msg = input('Enter message\n')
-    #print([elem.encode("hex") for elem in msg])
-
-    # prepare msg for encryption
-
-    # convert msg to 8-Bit ascii Bytes
-    msg = [x for x in msg.encode('ascii')]
 
     encrypted_msg  = crypt(msg,e,n)
     print('Encrypted Message:')
-    for number in encrypted_msg:
-        print(number,end=' ')
-    print('\n')
+    print(encrypted_msg)
 
     if input('Store message(n/y)\n') == 'y':
         global encrypted_msg_stored
@@ -123,13 +115,10 @@ def decrypt():
             msg = encrypted_msg_stored
     else:
         msg = input('Enter message\n')
-        # convert msg to list
-        msg = [int(x) for x in msg.split(' ') if x != '']
 
-    decrypted_msg = ''.join([chr(x) for x in crypt(msg,d,n)])
+    decrypted_msg = crypt(msg,d,n)
     print('Decrypted Message:')
     print(decrypted_msg)
-    return
 
 def operation_not_found():
     print('unknown operation')
