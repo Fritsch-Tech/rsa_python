@@ -59,6 +59,21 @@ def generate_keys():
         d_stored = d
         print('Keys Saved')
 
+def crypt(msg,a,b):
+    # convert numbers in list to bit and add to string
+    msg = ''.join([format(x, '08b') for x in msg])
+
+    msgBit10Int = []
+    for i in range(math.ceil(len(msg)/10)):
+        msgBit10Int.append(int(msg[:10].ljust(10,'0'),2))
+        msg = msg[10:]
+    crypted_msg = ''.join([format(pow(x,a,b), '010b') for x in msgBit10Int])
+    msgBit8Int = []
+    for i in range(math.floor(len(crypted_msg)/8)):
+        msgBit8Int.append(int(crypted_msg[:8],2))
+        crypted_msg = crypted_msg[8:]
+    print(msgBit8Int)
+    return msgBit8Int
 
 def encrypt():
     e = e_stored
@@ -77,24 +92,9 @@ def encrypt():
     # prepare msg for encryption
 
     # convert msg to 8-Bit ascii Bytes
-    msg = ''.join([format(x, '08b') for x in msg.encode('ascii')])
+    msg = [x for x in msg.encode('ascii')]
 
-    # join 8-Bit to 10-Bit and padd with zeros at the end
-    msgBit10Int = []
-    for i in range(math.ceil(len(msg)/10)):
-        msgBit10Int.append(int(msg[:10].ljust(10,'0'),2))
-        msg = msg[10:]
-
-    # encrypt msg
-    encrypted_msg = ''.join([format(pow(x,e,n), '010b') for x in msgBit10Int])
-
-
-    msgBit8Int = []
-    for i in range(math.floor(len(encrypted_msg)/8)):
-        msgBit8Int.append(int(encrypted_msg[:8],2))
-        encrypted_msg = encrypted_msg[8:]
-
-    encrypted_msg  = msgBit8Int
+    encrypted_msg  = crypt(msg,e,n)
     print('Encrypted Message:')
     for number in encrypted_msg:
         print(number,end=' ')
@@ -117,36 +117,17 @@ def decrypt():
         e = input('Enter Public Key d')
         n = input('Enter Public Key n')
 
-    if input('Use stored message(n/y)\n') == 'y':
-        global encrypted_msg_stored
+    if encrypted_msg_stored != '':
+        if input('Use stored message(n/y)\n') == 'y':
 
-        msg = encrypted_msg_stored
-        print('Message Saved')
+            msg = encrypted_msg_stored
     else:
         msg = input('Enter message\n')
         # convert msg to list
         msg = [int(x) for x in msg.split(' ') if x != '']
 
-    # convert numbers in list to bit and add to string
-    msg = ''.join([format(x, '08b') for x in msg])
-
-
-    msgBit10Int = []
-    for i in range(math.ceil(len(msg)/10)):
-        msgBit10Int.append(int(msg[:10].ljust(10,'0'),2))
-        msg = msg[10:]
-
-    decrypted_msg = ''.join([format(pow(x,d,n), '010b') for x in msgBit10Int])
-
-    msgBit8Int = []
-    for i in range(math.floor(len(decrypted_msg)/8)):
-        msgBit8Int.append(chr(int(decrypted_msg[:8],2)))
-        decrypted_msg = decrypted_msg[8:]
-
-
-    decrypted_msg  = ''.join(x for x in msgBit8Int)
-
-    print('Decrypted Message')
+    decrypted_msg = ''.join([chr(x) for x in crypt(msg,d,n)])
+    print('Decrypted Message:')
     print(decrypted_msg)
     return
 
