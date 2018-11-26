@@ -7,6 +7,7 @@ key_length = 5
 e_stored = 3
 n_stored = 901
 d_stored = 555
+encrypted_msg_stored = ''
 
 def egcd(a, b):
     if a == 0:
@@ -63,7 +64,7 @@ def encrypt():
     e = e_stored
     n = n_stored
     if e is not None and n is not None:
-        if input('Use saved key?(y/n)\n') != 'y':
+        if input('Use stored key?(y/n)\n') != 'y':
             e = input('Enter Private Key e')
             n = input('Enter Private Key n')
     else:
@@ -97,22 +98,34 @@ def encrypt():
     print('Encrypted Message:')
     for number in encrypted_msg:
         print(number,end=' ')
-    print('')
+    print('\n')
+
+    if input('Store message(n/y)\n') == 'y':
+        global encrypted_msg_stored
+
+        encrypted_msg_stored = encrypted_msg
+        print('Message Saved')
 
 def decrypt():
     d = d_stored
     n = n_stored
     if d is not None and n is not None:
-        if input('Use saved key?(y/n)\n') != 'y':
+        if input('Use stored key?(y/n)\n') != 'y':
             e = input('Enter Public Key d')
             n = input('Enter Public Key n')
     else:
         e = input('Enter Public Key d')
         n = input('Enter Public Key n')
 
-    msg = input('Enter message\n')
-    # convert msg to list
-    msg = [int(x) for x in msg.split(' ') if x != '']
+    if input('Use stored message(n/y)\n') == 'y':
+        global encrypted_msg_stored
+
+        msg = encrypted_msg_stored
+        print('Message Saved')
+    else:
+        msg = input('Enter message\n')
+        # convert msg to list
+        msg = [int(x) for x in msg.split(' ') if x != '']
 
     # convert numbers in list to bit and add to string
     msg = ''.join([format(x, '08b') for x in msg])
@@ -122,7 +135,6 @@ def decrypt():
     for i in range(math.ceil(len(msg)/10)):
         msgBit10Int.append(int(msg[:10].ljust(10,'0'),2))
         msg = msg[10:]
-    print(msgBit10Int)
 
     decrypted_msg = ''.join([format(pow(x,d,n), '010b') for x in msgBit10Int])
 
