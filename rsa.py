@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
+# -*- coding: cp1252 -*-
 import sys
 import random, math
 from Crypto.Util import number
