@@ -2,7 +2,12 @@
 # -*- coding: cp1252 -*-
 import sys
 import random, math
-from Crypto.Util import number
+has_pycryptodome = True
+try:
+    from Crypto.Util import number
+except ImportError:
+    has_pycryptodome = False
+
 key_length = 5
 e_stored = 3
 n_stored = 901
@@ -37,27 +42,32 @@ def stop():
     sys.exit(0)
 
 def generate_keys():
-    p = number.getPrime(key_length)
-    q = number.getPrime(key_length)
-    n = p*q
-    phi = (p - 1)*(q - 1)
-    e = number.getPrime(n.bit_length())
-    while e < 1 or e > n:
+    if has_pycryptodome:
+        p = number.getPrime(key_length)
+        q = number.getPrime(key_length)
+        n = p*q
+        phi = (p - 1)*(q - 1)
         e = number.getPrime(n.bit_length())
+        while e < 1 or e > n:
+            e = number.getPrime(n.bit_length())
 
-    d = modinv(e,phi)
+        d = modinv(e,phi)
 
-    print('Public Key: \t {}  {}'.format(e,n))
-    print('Private Key: \t {}  {}'.format(d,n))
-    if input('Store Keys(n/y)\n') == 'y':
-        global e_stored
-        global n_stored
-        global d_stored
+        print('Public Key: \t {}  {}'.format(e,n))
+        print('Private Key: \t {}  {}'.format(d,n))
+        if input('Store Keys(n/y)\n') == 'y':
+            global e_stored
+            global n_stored
+            global d_stored
 
-        e_stored = e
-        n_stored = n
-        d_stored = d
-        print('Keys Saved')
+            e_stored = e
+            n_stored = n
+            d_stored = d
+            print('Keys Saved')
+    else:
+        print('The pycryptodome libery is needed for this function.')
+        print('It can be installed with: "pip install pycryptodome".')
+
 
 def crypt(msg,a,b):
     # convert numbers in list to bit and add to string
