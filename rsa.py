@@ -128,6 +128,8 @@ def decrypt():
         if input('Use stored message(n/y)\n') == 'y':
 
             msg = encrypted_msg_stored
+        else:
+            msg = input('Enter message\n')
     else:
         msg = input('Enter message\n')
 
