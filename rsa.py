@@ -68,21 +68,26 @@ def generate_keys():
         print('The pycryptodome libery is needed for this function.')
         print('It can be installed with: "pip install pycryptodome".')
 
-
 def crypt(msg,a,b):
+    print('raw: {}'.format(msg))
     # convert numbers in list to bit and add to string
     msg = ''.join([format(ord(x), '08b') for x in msg])
+    print('bin: {}'.format(msg))
 
     msgBit10Int = []
     for i in range(math.ceil(len(msg)/10)):
         msgBit10Int.append(int(msg[:10].ljust(10,'0'),2))
         msg = msg[10:]
+    print('10Bit: {}'.format(msgBit10Int))
     crypted_msg = ''.join([format(pow(x,a,b), '010b') for x in msgBit10Int])
+    print('crypt: {}'.format(crypted_msg))
     msgBit8Int = []
     for i in range(math.floor(len(crypted_msg)/8)):
         msgBit8Int.append(chr(int(crypted_msg[:8],2)))
         crypted_msg = crypted_msg[8:]
+    print('8Bit: {}'.format(msgBit8Int))
     crypted_msg = ''.join([str(x) for x in msgBit8Int])
+    print('fin: {}'.format(crypted_msg))
     return crypted_msg
 
 def encrypt():
